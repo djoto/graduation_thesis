@@ -71,7 +71,7 @@ namespace Microsoft.Samples.Kinect.DepthBasics
         Mat testImage = new Mat();  //!!! dodato
         int cntFrm = 0;     //!!! dodato
         int cntFrmCsv = 0;      //!!! dodato
-        int bufferSize = 10;        //!!! dodato
+        int bufferSize = 20;        //!!! dodato
 
         /// <summary>
         /// Initializes a new instance of the MainWindow class.
@@ -434,10 +434,42 @@ namespace Microsoft.Samples.Kinect.DepthBasics
         /// <param name="e">event arguments</param>
         private void ClassifyButton_Click(object sender, RoutedEventArgs e)
         {
-            //MessageBox.Show(this.ClassifyBend());
+            var watchAll = new System.Diagnostics.Stopwatch();
+            watchAll.Start();
+
+            int h = this.depthBitmap.PixelHeight;
+            int w = this.depthBitmap.PixelWidth;
+            ushort maxDepth = Convert.ToUInt16(MaxDepthInput.Text);
+
             List<List<ushort>> depthFrameDataListForCheck = this.depthFrameDataList;
-            string[] resultArray = ClassifyBend(depthFrameDataListForCheck);
-            TimingScanner.ResultWindow resultWindow = new TimingScanner.ResultWindow(resultArray);
+            List<string> resultArray = new List<string>();
+
+
+            //PARALELIZACIJA
+            int numParts = 4;
+            if (bufferSize % numParts != 0)  // ako bufferSize nije djeljivo sa numParts, numParts se podesava na bufferSize
+            {
+                numParts = bufferSize * 1;
+            }
+            List<List<string>> tempResultArray = new List<List<string>>();
+
+            Parallel.For(0, numParts, i => tempResultArray.Add(ClassifyBend(depthFrameDataListForCheck.GetRange(i * (bufferSize / numParts), bufferSize / numParts), h, w, maxDepth)));
+
+            for (int i = 0; i < tempResultArray.Count; i++)
+            {
+                resultArray.AddRange(tempResultArray[i]);
+            }
+
+
+            //BEZ PARALELIZACIJE:
+            //resultArray = ClassifyBend(depthFrameDataListForCheck, h, w, maxDepth);
+
+            watchAll.Stop();
+            Console.WriteLine($"Execution Time TOTAL: {watchAll.ElapsedMilliseconds} ms");
+            //MessageBox.Show(this.ClassifyBend());
+
+
+            TimingScanner.ResultWindow resultWindow = new TimingScanner.ResultWindow(resultArray.ToArray());
             resultWindow.Show();
         }
 
@@ -446,71 +478,75 @@ namespace Microsoft.Samples.Kinect.DepthBasics
         /// Za svaki frejm vrsi procesiranje slike, a zatim klasifikaciju profila sa procesiranjem pripremljene slike
         /// </summary>
         /// <param name="depthFrameDataListForCheck">lista frejmova za klasifikaciju</param>
-        private string[] ClassifyBend(List<List<ushort>> depthFrameDataListForCheck)
+        private List<string> ClassifyBend(List<List<ushort>> depthFrameDataListForCheck, int h, int w, ushort maxDepth)
         {
-            var watchAll = new System.Diagnostics.Stopwatch();
-            watchAll.Start();
+            //var watchAll = new System.Diagnostics.Stopwatch();
+            //watchAll.Start();
 
-            string[] resultArr = new string[bufferSize];
+            List<string> resultArr = new List<string>();
             byte[] depthPixelsClassify = new byte[this.depthFrameDescription.Width * this.depthFrameDescription.Height];
 
-            for (int i = 0; i < bufferSize; i++)
-            {
+            Mat testImage = new Mat();
 
+            //for (int i = 0; i < bufferSize; i++)
+            for (int i = 0; i < depthFrameDataListForCheck.Count; i++)
+            {
                 //Depth scale
-                var watch = new System.Diagnostics.Stopwatch();
-                watch.Start();
-                ProcessDepthFrameDataFromCsv(depthFrameDataListForCheck[i].ToArray(), depthPixelsClassify, 0, Convert.ToUInt16(MaxDepthInput.Text));
-                this.testImage = Byte1DToMat(this.depthBitmap.PixelHeight, this.depthBitmap.PixelWidth, depthPixelsClassify);
-                watch.Stop();
-                Console.WriteLine($"Execution Time Depth Scale: {watch.ElapsedMilliseconds} ms");
-                ShowImage("Depth Scaled Image", this.testImage);
+                //var watch = new System.Diagnostics.Stopwatch();
+                //watch.Start();
+                //ProcessDepthFrameDataFromCsv(depthFrameDataListForCheck[i].ToArray(), depthPixelsClassify, 0, Convert.ToUInt16(MaxDepthInput.Text));
+                //this.testImage = Byte1DToMat(this.depthBitmap.PixelHeight, this.depthBitmap.PixelWidth, depthPixelsClassify);
+                ProcessDepthFrameDataFromCsv(depthFrameDataListForCheck[i].ToArray(), depthPixelsClassify, 0, maxDepth);
+                testImage = Byte1DToMat(h, w, depthPixelsClassify);
+                //watch.Stop();
+                //Console.WriteLine($"Execution Time Depth Scale: {watch.ElapsedMilliseconds} ms");
+                //ShowImage("Depth Scaled Image", testImage);
 
                 //Black-White image
-                watch = new System.Diagnostics.Stopwatch();
-                watch.Start();
-                this.testImage = ToBlackWhiteImage(this.testImage);
-                watch.Stop();
-                Console.WriteLine($"Execution Time Black White: {watch.ElapsedMilliseconds} ms");
-                ShowImage("Black-White Image", this.testImage);
+                //watch = new System.Diagnostics.Stopwatch();
+                //watch.Start();
+                testImage = ToBlackWhiteImage(testImage);
+                //watch.Stop();
+                //Console.WriteLine($"Execution Time Black White: {watch.ElapsedMilliseconds} ms");
+                //ShowImage("Black-White Image", testImage);
 
 
                 //Erode - Dilate
-                watch = new System.Diagnostics.Stopwatch();
-                watch.Start();
-                this.testImage = RemoveNoise(this.testImage);
-                watch.Stop();
-                Console.WriteLine($"Execution Time Erode Dilate: {watch.ElapsedMilliseconds} ms");
-                ShowImage("Erode-Dilate Image 1" + " " + i.ToString(), this.testImage);
+                //watch = new System.Diagnostics.Stopwatch();
+                //watch.Start();
+                testImage = RemoveNoise(testImage);
+                //watch.Stop();
+                //Console.WriteLine($"Execution Time Erode Dilate: {watch.ElapsedMilliseconds} ms");
+                //ShowImage("Erode-Dilate Image", testImage);
 
                 //Extract Largest
-                watch = new System.Diagnostics.Stopwatch();
-                watch.Start();
-                this.testImage = ExtractLargestContour(this.testImage, false);
-                watch.Stop();
-                Console.WriteLine($"Execution Time Extract Largest: {watch.ElapsedMilliseconds} ms");
-                ShowImage("Extract Largest Contour", this.testImage);
+                //watch = new System.Diagnostics.Stopwatch();
+                //watch.Start();
+                testImage = ExtractLargestContour(testImage, false);
+                //watch.Stop();
+                //Console.WriteLine($"Execution Time Extract Largest: {watch.ElapsedMilliseconds} ms");
+                //ShowImage("Extract Largest Contour", testImage);
 
                 //Correct Rotation
-                watch = new System.Diagnostics.Stopwatch();
-                watch.Start();
-                this.testImage = CorrectRotationFinal(this.testImage);
-                watch.Stop();
-                Console.WriteLine($"Execution Time CorrectRotation: {watch.ElapsedMilliseconds} ms");
-                ShowImage("Rotation Corrected", this.testImage);
+                //watch = new System.Diagnostics.Stopwatch();
+                //watch.Start();
+                testImage = CorrectRotationFinal(testImage);
+                //watch.Stop();
+                //Console.WriteLine($"Execution Time CorrectRotation: {watch.ElapsedMilliseconds} ms");
+                //ShowImage("Rotation Corrected", testImage);
 
                 //Classification Result
-                string result = Classify(this.testImage);
-                resultArr[i] = result;
+                string result = Classify(testImage);
+                resultArr.Add(result);
 
                 //break;
 
             }
 
-            watchAll.Stop();
-            Console.WriteLine($"Execution Time TOTAL: {watchAll.ElapsedMilliseconds} ms");
+            //watchAll.Stop();
+            //Console.WriteLine($"Execution Time TOTAL: {watchAll.ElapsedMilliseconds} ms");
 
-            return resultArr;
+            return resultArr.Cast<string>().ToList();
         }
 
     }

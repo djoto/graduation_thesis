@@ -69,13 +69,13 @@ namespace Microsoft.Samples.Kinect.DepthBasics.TimingScanner
             //strDetails += "Vertical ellipse - " + percentResult[6].ToString() + "%\n";
             //strDetails += "Unknown shape - " + percentResult[0].ToString() + "%\n";
 
-            strDetails += "Pravilan luk (180 stepeni) - " + percentResult[1].ToString() + "%\n";
-            strDetails += "L luk (90 stepeni) - " + percentResult[2].ToString() + "%\n";
-            strDetails += "Kružni isječak - " + percentResult[3].ToString() + "%\n";
-            strDetails += "n luk - " + percentResult[4].ToString() + "%\n";
-            strDetails += "Horizontalna elipsa - " + percentResult[5].ToString() + "%\n";
-            strDetails += "Vertikalna elipsa - " + percentResult[6].ToString() + "%\n";
-            strDetails += "Nepoznat oblik - " + percentResult[0].ToString() + "%\n";
+            strDetails += "Pravilan luk (180 stepeni) - " + Math.Round(percentResult[1], 2).ToString() + "%\n";
+            strDetails += "L luk (90 stepeni) - " + Math.Round(percentResult[2], 2).ToString() + "%\n";
+            strDetails += "Kružni isječak - " + Math.Round(percentResult[3], 2).ToString() + "%\n";
+            strDetails += "n luk - " + Math.Round(percentResult[4], 2).ToString() + "%\n";
+            strDetails += "Horizontalna elipsa - " + Math.Round(percentResult[5], 2).ToString() + "%\n";
+            strDetails += "Vertikalna elipsa - " + Math.Round(percentResult[6], 2).ToString() + "%\n";
+            strDetails += "Nepoznat oblik - " + Math.Round(percentResult[0], 2).ToString() + "%\n";
 
             float maxPercent = percentResult[0];
             int idxMax = 0;
