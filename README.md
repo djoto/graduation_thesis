@@ -1,1 +1,2 @@
-# Diplomski verzija 2
+# Diplomski rad
+## Verzija za stampanje
