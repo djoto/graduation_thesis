@@ -1,6 +1,7 @@
 ﻿using OpenCvSharp;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -17,6 +18,15 @@ namespace Microsoft.Samples.Kinect.DepthBasics.TimingScanner
         public static float[] GetAverageSamplesArray(Mat srcImg)
         {
             int[] arr = GetArrayY(srcImg);
+
+            //string strI = "";
+            //for(int i = 0; i<arr.Length; i++)
+            //{
+            //    strI += arr[i].ToString() + " & ";
+            //}
+            //System.Windows.MessageBox.Show(strI);
+            //File.WriteAllText("C:\\Users\\Djordje\\Desktop\\WriteTextI.txt", strI);
+
             float[] floatArr = IntToFloatArray(arr);
 
             float[] firstArray = floatArr.Take(floatArr.Length / 2).ToArray();
@@ -27,6 +37,14 @@ namespace Microsoft.Samples.Kinect.DepthBasics.TimingScanner
             secondArray = MovingAverageSmooth1D(secondArray, 3);
             firstArray.CopyTo(floatArr, 0);
             secondArray.CopyTo(floatArr, firstArray.Length);
+
+            //string strF = "";
+            //for (int i = 0; i < floatArr.Length; i++)
+            //{
+            //    strF += floatArr[i].ToString() + " & ";
+            //}
+            //System.Windows.MessageBox.Show(strF);
+            //File.WriteAllText("C:\\Users\\Djordje\\Desktop\\WriteTextF.txt", strF);
 
             return floatArr;
         }

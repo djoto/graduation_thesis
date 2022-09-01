@@ -117,13 +117,13 @@ namespace Microsoft.Samples.Kinect.DepthBasics
             // {
 
             // dobri
-            //Task t = ReadDepthFrameDataFromCSVasync(@"C:\Users\Djordje\Documents\TIMING_skener\Primjeri lukova\dordje_nivelisan_pravilan_luk\dordje.csv", this.depthPixels);
+            Task t = ReadDepthFrameDataFromCSVasync(@"C:\Users\Djordje\Documents\TIMING_skener\Primjeri lukova\dordje_nivelisan_pravilan_luk\dordje.csv", this.depthPixels);
             //Task t = ReadDepthFrameDataFromCSVasync(@"C:\Users\Djordje\Documents\TIMING_skener\Primjeri lukova\isecak1\dordje.csv", this.depthPixels);
             //Task t = ReadDepthFrameDataFromCSVasync(@"C:\Users\Djordje\Documents\TIMING_skener\Primjeri lukova\isecak_male_nozice\isecak_male_nozice.csv", this.depthPixels);
             //Task t = ReadDepthFrameDataFromCSVasync(@"C:\Users\Djordje\Documents\TIMING_skener\Primjeri lukova\sirovaHorizontalnaElipsa\sirovaHorizontalnaElipsa.csv", this.depthPixels);
             //Task t = ReadDepthFrameDataFromCSVasync(@"C:\Users\Djordje\Documents\TIMING_skener\Primjeri lukova\nezgodanPolukrug\NEYGODAN.csv", this.depthPixels);
             //Task t = ReadDepthFrameDataFromCSVasync(@"C:\Users\Djordje\Documents\TIMING_skener\Primjeri lukova\novo\horizontalna_elipsa_1.csv", this.depthPixels);
-            Task t = ReadDepthFrameDataFromCSVasync(@"C:\Users\Djordje\Documents\TIMING_skener\Primjeri lukova\novo\horizontalna_elipsa_1_rot1.csv", this.depthPixels);
+            //Task t = ReadDepthFrameDataFromCSVasync(@"C:\Users\Djordje\Documents\TIMING_skener\Primjeri lukova\novo\horizontalna_elipsa_1_rot1.csv", this.depthPixels);
 
             // nisu dobri
             //Task t = ReadDepthFrameDataFromCSVasync(@"C:\Users\Djordje\Documents\TIMING_skener\Primjeri lukova\HE\dordje.csv", this.depthPixels);
